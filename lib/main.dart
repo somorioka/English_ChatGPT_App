@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'homescreen.dart';
+import 'input.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,10 +13,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: Text('ChatGPT English Generator')),
-        body: EnglishGeneratorScreen(),
-      ),
+      debugShowCheckedModeBanner: false,
+      home: TopPage()
     );
   }
 }

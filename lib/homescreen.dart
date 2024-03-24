@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -8,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'chat_service.dart';
+import 'chat_api.dart';
 import 'package:http/http.dart' as http;
 
 class EnglishGeneratorScreen extends StatefulWidget {
@@ -22,13 +21,13 @@ class _EnglishGeneratorScreenState extends State<EnglishGeneratorScreen> {
   bool _isLoading = false; // ローディング状態の管理
   final _themeController = TextEditingController();
   String _difficulty = '小学生';
-  double _wordCount = 50;
+  String _phrase = '';
   String _generatedText = ''; // 追加: APIからのレスポンスを格納
 
   void _generatePrompt() async {
     final theme = _themeController.text;
     final difficulty = _difficulty;
-    final wordCount = _wordCount;
+    final phrase = _phrase;
 
     setState(() {
       _isLoading = true; // ローディング開始
@@ -36,7 +35,7 @@ class _EnglishGeneratorScreenState extends State<EnglishGeneratorScreen> {
 
     try {
       final responseText =
-          await ChatService().fetchResponse(theme, difficulty, wordCount);
+          await ChatService().fetchResponse(theme, difficulty, phrase);
       setState(() {
         _generatedText = responseText; // 状態更新: APIからのレスポンスで
         _isLoading = false; // ローディング終了
@@ -129,29 +128,34 @@ class _EnglishGeneratorScreenState extends State<EnglishGeneratorScreen> {
   }
 
   Future<void> playOrFetchTTS(String text) async {
-  // テキストから一意のハッシュ値を生成する
-  var bytes = utf8.encode(text); // テキストをバイト配列に変換
-  var digest = sha256.convert(bytes); // SHA-256 ハッシュを計算
-  String fileName = 'tts_$digest.mp3'; // ファイル名
+    // テキストから一意のハッシュ値を生成する
+    var bytes = utf8.encode(text); // テキストをバイト配列に変換
+    var digest = sha256.convert(bytes); // SHA-256 ハッシュを計算
+    String fileName = 'tts_$digest.mp3'; // ファイル名
 
-  final directory = await getApplicationDocumentsDirectory();
-  final filePath = '${directory.path}/$fileName';
-  final file = File(filePath);
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/$fileName';
+    final file = File(filePath);
 
-  // ファイルが既に存在するかチェック
-  if (await file.exists()) {
-    print("ファイルは既に存在します。ダウンロードせずに再生します。");
-    await audioPlayer.play(DeviceFileSource(filePath));
-  } else {
-    print("ファイルが存在しません。Azureからダウンロードします。");
-    // Azureから音声データを取得し、ファイルに保存する処理をここに記述
-    // 以下は fetchTTSData メソッドの擬似的な呼び出しです
-    final fetchedFilePath = await fetchTTSData(text);
-    if (fetchedFilePath != null) {
-      await audioPlayer.play(DeviceFileSource(fetchedFilePath));
+    // ファイルが既に存在するかチェック
+    if (await file.exists()) {
+      print("ファイルは既に存在します。ダウンロードせずに再生します。");
+      await audioPlayer.play(DeviceFileSource(filePath));
+    } else {
+      print("ファイルが存在しません。Azureからダウンロードします。");
+      final String? filePath =
+          await fetchTTSData(utf8.decode(_generatedText.runes.toList()));
+      if (filePath != null) {
+        await playTTS(filePath);
+      }
+
+      final fetchedFilePath = await fetchTTSData(text);
+      if (fetchedFilePath != null) {
+        await audioPlayer.play(DeviceFileSource(fetchedFilePath));
+      }
     }
   }
-}
+
   @override
   void initState() {
     super.initState();
@@ -190,42 +194,41 @@ class _EnglishGeneratorScreenState extends State<EnglishGeneratorScreen> {
                 );
               }).toList(),
             ),
-            Slider(
-              value: _wordCount,
-              min: 50,
-              max: 200,
-              divisions: 150,
-              label: _wordCount.round().toString(),
-              onChanged: (double value) {
-                setState(() {
-                  _wordCount = value;
-                });
-              },
-            ),
 
             ElevatedButton(
               onPressed: _generatePrompt,
-              child: Text('生成'),
+              child: Text('英文生成'),
             ),
             SizedBox(height: 20), // 結果表示前のスペース
 
             ElevatedButton(
               onPressed: _generatedText.isNotEmpty
                   ? () async {
-                      final String? filePath = await fetchTTSData(
-                          utf8.decode(_generatedText.runes.toList()));
-                      if (filePath != null) {
-                        await playTTS(filePath);
-                      }
+                      await playOrFetchTTS(_themeController.text);
                     }
-                  : null, // _generatedTextが空でない場合のみ実行
-              child: const Text('読み上げ音声を取得'),
+                  : null, // テキストが空の場合はボタンを無効化
+              child: const Text('テキストを読み上げる'),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                await playOrFetchTTS(utf8.decode(_generatedText.runes.toList()));
-              }, 
-              child: const Text('テキストを読み上げる'),),
+
+            // ElevatedButton(
+            //   onPressed: _generatedText.isNotEmpty
+            //       ? () async {
+            //           final String? filePath = await fetchTTSData(
+            //               utf8.decode(_generatedText.runes.toList()));
+            //           if (filePath != null) {
+            //             await playTTS(filePath);
+            //           }
+            //         }
+            //       : null, // _generatedTextが空でない場合のみ実行
+            //   child: const Text('読み上げ音声を取得'),
+            // ),
+            // ElevatedButton(
+            //   onPressed: () async {
+            //     await playOrFetchTTS(
+            //         utf8.decode(_generatedText.runes.toList()));
+            //   },
+            //   child: const Text('テキストを読み上げる'),
+            // ),
             IconButton(
               onPressed: () {
                 if (isPlaying) {
