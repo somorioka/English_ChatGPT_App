@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'chat_api.dart';
 import 'english_sentence.dart';
@@ -44,16 +45,18 @@ class MyCustomForm extends StatefulWidget {
 }
 
 class MyCustomFormState extends State<MyCustomForm> {
-  String _selectedLevel = '初級'; // デフォルトのレベル
+  String _selectedLevel = 'レベル1'; // デフォルトのレベル
   final Map<String, String> _levelMap = {
-    '初級': 'A1',
-    '中級': 'A2',
-    '上級': 'B2',
-    '最上級': 'B1',
+    'レベル1': 'A1',
+    'レベル2': 'A2',
+    'レベル3': 'B2',
+    'レベル4': 'B1',
+    'レベル5': 'C1',
+    'レベル6': 'C2'
   };
 
   final _formKey = GlobalKey<FormState>();
-  String _difficulty = '初級';
+  String _difficulty = 'レベル1';
   String _phrase = '';
   String _generatedText = ''; // 追加: APIからのレスポンスを格納
   bool _isLoading = false; // ローディング状態の管理
@@ -81,18 +84,33 @@ class MyCustomFormState extends State<MyCustomForm> {
             ListTile(
               title: Text('レベルの基準'),
               subtitle: Text(
-                '初級: 基本的な表現が理解できるレベル\n'
-                '中級: 日常会話がスムーズに行えるレベル\n'
-                '上級: 幅広いトピックでのコミュニケーションが可能\n'
-                '最上級: ネイティブスピーカーに近い理解度',
+                'レベル1: 英検3級レベル (CEFR A1)\n'
+                'レベル2: 英検準2級レベル (CEFR A2)\n'
+                'レベル3: 英検2級レベル (CEFR B1)\n'
+                'レベル4: 英検準1級レベル (CEFR B2)\n'
+                'レベル5: 英検1級レベル (CEFR C1)\n'
+                'レベル6: ネイティブスピーカーレベル (CEFR C2)\n',
                 style: TextStyle(height: 1.5), // 行間を調整
               ),
             ),
+            TextButton(
+              onPressed: _launchURL,
+              child: Text('詳しくはコチラ'),
+            )
           ],
         ),
       );
     },
   );
+}
+
+Future<void> _launchURL() async {
+  const url = 'https://www.mext.go.jp/b_menu/shingi/chousa/koutou/091/gijiroku/__icsFiles/afieldfile/2018/07/27/1407616_003.pdf'; // 遷移させたい外部ページのURL
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
 }
 
 
@@ -168,68 +186,26 @@ class MyCustomFormState extends State<MyCustomForm> {
               height: 25,
             ),
             Padding(
-              padding: EdgeInsets.all(15),
-              child: DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                  labelText: 'レベルを選択',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0), // 角丸の設定
-                    borderSide:
-                        BorderSide(color: Colors.grey), // 通常時のボーダーカラーを灰色に設定
+              padding: const EdgeInsets.only(left: 16.0),
+              child: TextButton(
+                child: Text(
+                  'レベルを選ぶ',
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    // フォーカス時のボーダー設定
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide:
-                        BorderSide(color: Colors.grey), // フォーカス時のボーダーカラーを灰色に設定
                   ),
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8), // コンテンツのパディング調整
-                ),
-                isExpanded: true, // ドロップダウンの選択肢を中央に寄せる
-                value: _selectedLevel,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    if (newValue != null) {
-                      // nullでないことを保証
-                      // 選択されたレベルに基づいて_difficultyを設定
-                      switch (newValue) {
-                        case '初級':
-                          _difficulty = 'A1';
-                          break;
-                        case '中級':
-                          _difficulty = 'A2';
-                          break;
-                        case '上級':
-                          _difficulty = 'B2';
-                          break;
-                        case '最上級':
-                          _difficulty = 'B1';
-                          break;
-                        default:
-                          _difficulty = '初級'; // デフォルト値を設定（任意）
-                          break;
-                      }
-                      _selectedLevel = newValue; // 選択されたレベルを更新
-                    }
-                  });
+                onPressed: () {
+                  _showLevelDescription(context);
                 },
-                items: <String>['初級', '中級', '上級', '最上級']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Center(child: Text(value)), // テキストを中央に寄せる
-                  );
-                }).toList(),
-              ),
+                ),
             ),
             Padding(
               padding: EdgeInsets.only(left: 18.0),
               child: Wrap(
                 spacing: 8.0, // 水平方向のスペース
-                runSpacing: 4.0, // 垂直方向のスペース
-                children: ['初級', '中級', '上級', '最上級'].map((String level) {
+                runSpacing: 0.0, // 垂直方向のスペース
+                children: ['レベル1', 'レベル2', 'レベル3', 'レベル4', 'レベル5', 'レベル6'].map((String level) {
                   return ChoiceChip(
                     label: Text(level),
                     selected: _selectedLevel == level,
@@ -273,7 +249,7 @@ class MyCustomFormState extends State<MyCustomForm> {
               padding: const EdgeInsets.all(16.0),
               child: Center(
                 child: ElevatedButton(
-                  onPressed: _generatePrompt,
+                  onPressed: _themeController.text.isEmpty ? null : _generatePrompt,
                   child: Text(
                     '送信',
                     style: TextStyle(fontWeight: FontWeight.w900),
