@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'chat_api.dart';
 import 'english_sentence.dart';
 
 class TopPage extends StatefulWidget {
@@ -50,17 +48,15 @@ class MyCustomFormState extends State<MyCustomForm> {
   final _formKey = GlobalKey<FormState>();
   String _difficulty = 'レベル1';
   String _phrase = '';
-  String _generatedText = ''; // 追加: APIからのレスポンスを格納
-  bool _isLoading = false; // ローディング状態の管理
   final _themeController = TextEditingController(); // テーマ用のコントローラー
-  final _phraseController = TextEditingController(); // フレーズ用のコントローラー、追加
+  // final _phraseController = TextEditingController(); // フレーズ用のコントローラー、追加
 
   void _generatePrompt() {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ResultPage(
         theme: _themeController.text,
         difficulty: _difficulty,
-        phrase: _phrase,
+        // phrase: _phrase,
       ),
     ));
   }
@@ -85,14 +81,17 @@ class MyCustomFormState extends State<MyCustomForm> {
                 style: TextStyle(height: 1.5), // 行間を調整
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end, // ボタンを右端に配置
-              children: [
-                TextButton(
-                  onPressed: _launchURL,
-                  child: Text('詳しくはコチラ'),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end, // ボタンを右端に配置
+                children: [
+                  TextButton(
+                    onPressed: _launchURL,
+                    child: Text('詳しくはコチラ'),
+                  ),
+                ],
+              ),
             )
           ],
         ),
@@ -189,17 +188,6 @@ Future<void> _launchURL() async {
                     .toList(),
               ),
             ),
-            // SizedBox(
-            //   height: 20.0,
-            // ),
-            // Padding(
-            //   padding: const EdgeInsets.only(left: 22.0),
-            //   child: Text(
-            //     'レベル *',
-            //     style: TextStyle(
-            //       fontWeight: FontWeight.w600
-            //     )),
-            // ),
             const SizedBox(
               height: 35,
             ),
@@ -250,14 +238,14 @@ Future<void> _launchURL() async {
                 },
                 ),
             ),
-            Padding(
-              padding: EdgeInsets.all(15.0),
-              child: MyTextField(
-                hintText: '単語・フレーズを入力',
-                labelText: '含めたい単語・フレーズ',
-                controller: _phraseController,
-              ),
-            ),
+            // Padding(
+            //   padding: EdgeInsets.all(15.0),
+            //   child: MyTextField(
+            //     hintText: '単語・フレーズを入力',
+            //     labelText: '含めたい単語・フレーズ',
+            //     controller: _phraseController,
+            //   ),
+            // ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Center(

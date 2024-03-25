@@ -10,13 +10,13 @@ import 'chat_api.dart';
 class ResultPage extends StatefulWidget {
   final String theme;
   final String difficulty;
-  final String phrase;
+  // final String phrase;
 
   const ResultPage({
     Key? key,
     required this.theme,
     required this.difficulty,
-    required this.phrase,
+    // required this.phrase,
   }) : super(key: key);
 
   @override
@@ -68,7 +68,7 @@ class _ResultPageState extends State<ResultPage> {
   Future<void> _generatePrompt() async {
     try {
       final responseText = await ChatService()
-          .fetchResponse(widget.theme, widget.difficulty, widget.phrase);
+          .fetchResponse(widget.theme, widget.difficulty);
       setState(() {
         _generatedText = responseText;
         _isLoading = false;
