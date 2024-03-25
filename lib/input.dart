@@ -22,14 +22,6 @@ class _TopPageState extends State<TopPage> {
               fontSize: 18, color: Colors.black87, fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit_note),
-            onPressed: () {
-              // アイコンボタンの処理
-            },
-          ),
-        ],
         elevation: 0,
       ),
       body: MyCustomForm(),
@@ -81,7 +73,7 @@ class MyCustomFormState extends State<MyCustomForm> {
         padding: EdgeInsets.all(16.0),
         child: Wrap(
           children: <Widget>[
-            ListTile(
+            const ListTile(
               title: Text('レベルの基準'),
               subtitle: Text(
                 'レベル1: 英検3級レベル (CEFR A1)\n'
@@ -93,9 +85,14 @@ class MyCustomFormState extends State<MyCustomForm> {
                 style: TextStyle(height: 1.5), // 行間を調整
               ),
             ),
-            TextButton(
-              onPressed: _launchURL,
-              child: Text('詳しくはコチラ'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end, // ボタンを右端に配置
+              children: [
+                TextButton(
+                  onPressed: _launchURL,
+                  child: Text('詳しくはコチラ'),
+                ),
+              ],
             )
           ],
         ),
@@ -122,15 +119,36 @@ Future<void> _launchURL() async {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            SizedBox(
-              height: 25,
+            const SizedBox(
+              height: 15,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Row(
+                children: const [
+                  Text(
+                    'テーマを決める',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 73, 73, 73),
+                      fontWeight: FontWeight.bold
+                    ),
+                    ),
+                  Text(
+                    '*',
+                    style: TextStyle(
+                      color: Color.fromARGB(221, 255, 0, 123),
+                      fontWeight: FontWeight.bold
+                    ),
+                  )
+                ],
+              ),
             ),
             Padding(
               padding: EdgeInsets.all(15.0),
               child: MyTextField(
                 controller: _themeController, // 修正: コントローラーを渡す
                 hintText: 'テーマを入力',
-                labelText: '英文のテーマ *',
+                labelText: '英文のテーマ',
               ),
             ),
             Padding(
@@ -182,22 +200,17 @@ Future<void> _launchURL() async {
             //       fontWeight: FontWeight.w600
             //     )),
             // ),
-            SizedBox(
-              height: 25,
+            const SizedBox(
+              height: 35,
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: TextButton(
-                child: Text(
-                  'レベルを選ぶ',
-                  style: TextStyle(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.bold
-                  ),
-                  ),
-                onPressed: () {
-                  _showLevelDescription(context);
-                },
+            const Padding(
+              padding: EdgeInsets.only(left: 16.0),
+              child: Text(
+                'レベルを選ぶ',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 73, 73, 73),
+                  fontWeight: FontWeight.bold
+                ),
                 ),
             ),
             Padding(
@@ -226,7 +239,7 @@ Future<void> _launchURL() async {
             Padding(
               padding: const EdgeInsets.only(left: 16.0),
               child: TextButton(
-                child: Text(
+                child: const Text(
                   'レベルに関して',
                   style: TextStyle(
                     color: Color.fromARGB(255, 11, 180, 115)
@@ -250,10 +263,6 @@ Future<void> _launchURL() async {
               child: Center(
                 child: ElevatedButton(
                   onPressed: _themeController.text.isEmpty ? null : _generatePrompt,
-                  child: Text(
-                    '送信',
-                    style: TextStyle(fontWeight: FontWeight.w900),
-                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromARGB(255, 44, 44, 44),
                     minimumSize:
@@ -262,6 +271,10 @@ Future<void> _launchURL() async {
                       borderRadius:
                           BorderRadius.circular(15), // 角の丸さを20ピクセルの半径で設定
                     ),
+                  ),
+                  child: const Text(
+                    '送信',
+                    style: TextStyle(fontWeight: FontWeight.w900),
                   ),
                 ),
               ),

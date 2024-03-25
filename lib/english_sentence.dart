@@ -44,46 +44,24 @@ class _ResultPageState extends State<ResultPage> {
     await _generatePrompt();
     // 応答テキストが取得できたら、そのテキストを用いてTTSデータを取得
     if (_generatedText.isNotEmpty) {
-      // 英語の本文の開始を特定するパターン
-      final startMarker = '{EnglishText}';
-      // 英語の本文の開始位置を見つける
-      final startIndex = _generatedText.indexOf(startMarker);
-      if (startIndex != -1) {
-        // 開始マーカーの後ろからテキストを取得
-        final startOfEnglishText = startIndex + startMarker.length;
-        // 最初の空行（英語セクションの終了）を探す
-        final endOfEnglishText =
-            _generatedText.indexOf('\n\n', startOfEnglishText);
-        String englishText;
-        if (endOfEnglishText != -1) {
-          // 空行が見つかった場合、その直前までが英文
-          englishText = _generatedText
-              .substring(startOfEnglishText, endOfEnglishText)
-              .trim();
-        } else {
-          // 空行が見つからない場合、文書の終わりまでが英文
-          englishText = _generatedText.substring(startOfEnglishText).trim();
-        }
-        // 英語のテキストをAzure TTSで読み上げる
-        final ttsFilePath = await AzureTTS().fetchTTSData(englishText);
-        if (ttsFilePath != null) {
-          setState(() {
-            _ttsFilePath = ttsFilePath;
-          });
-          await _initializeAudioPlayer(); // ここで_audioPlayerを初期化
-        }
+      // 最初の空行（英語セクションの終了）を探す
+      final endOfEnglishText = _generatedText.indexOf('\n\n');
+      String englishText;
+      if (endOfEnglishText != -1) {
+        // 空行が見つかった場合、その直前までが英文
+        englishText = _generatedText.substring(0, endOfEnglishText).trim();
       } else {
-        print('英語本文の開始マーカーが見つかりませんでした。');
+        // 空行が見つからない場合、文書の終わりまでが英文
+        englishText = _generatedText.trim();
       }
-      // final ttsFilePath = await AzureTTS().fetchTTSData(_generatedText);
-      // if (ttsFilePath != null) {
-      //   setState(() {
-      //     _ttsFilePath = ttsFilePath;
-      //   });
-      //   await _initializeAudioPlayer(); // ここで_audioPlayerを初期化
-      // }
-      // ここで得られたTTSファイルのパスを使って何か処理を行う
-      // 例: AudioPlayerなどで再生、UIに表示するための状態更新など
+      // 英語のテキストをAzure TTSで読み上げる
+      final ttsFilePath = await AzureTTS().fetchTTSData(englishText);
+      if (ttsFilePath != null) {
+        setState(() {
+          _ttsFilePath = ttsFilePath;
+        });
+        await _initializeAudioPlayer(); // ここで_audioPlayerを初期化
+      }
     }
   }
 
@@ -122,7 +100,9 @@ class _ResultPageState extends State<ResultPage> {
   @override
   Widget build(BuildContext context) {
     void _copyToClipboard() {
-      Clipboard.setData(ClipboardData(text: utf8.decode(_generatedText.runes.toList()))).then((_) {
+      Clipboard.setData(
+              ClipboardData(text: utf8.decode(_generatedText.runes.toList())))
+          .then((_) {
         // コピー完了後の処理（オプション）
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('テキストをクリップボードにコピーしました')),
@@ -148,7 +128,10 @@ class _ResultPageState extends State<ResultPage> {
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-        actions: [IconButton(onPressed: _copyToClipboard, icon: Icon(Icons.content_copy))],
+        actions: [
+          IconButton(
+              onPressed: _copyToClipboard, icon: Icon(Icons.content_copy))
+        ],
       ),
       body: _isLoading
           ? Center(
