@@ -25,10 +25,10 @@ class ResultPage extends StatefulWidget {
 
 class _ResultPageState extends State<ResultPage> {
   String _generatedText = '';
-  bool _isLoading = true;
+  bool _isTextLoading = true;
+  bool _isAudioLoading = true;
   String? _ttsFilePath;
   late AudioPlayer _audioPlayer;
-  bool _isPlaying = false;
   double _volume = 1.0;
   double _speed = 1.0;
 
@@ -67,16 +67,16 @@ class _ResultPageState extends State<ResultPage> {
 
   Future<void> _generatePrompt() async {
     try {
-      final responseText = await ChatService()
-          .fetchResponse(widget.theme, widget.difficulty);
+      final responseText =
+          await ChatService().fetchResponse(widget.theme, widget.difficulty);
       setState(() {
         _generatedText = responseText;
-        _isLoading = false;
+        _isTextLoading = false;
       });
     } catch (e) {
       setState(() {
         _generatedText = 'エラーが発生しました: $e';
-        _isLoading = false;
+        _isTextLoading = false;
       });
     }
   }
@@ -86,7 +86,7 @@ class _ResultPageState extends State<ResultPage> {
     _audioPlayer.playerStateStream.listen((playerState) {
       final isPlaying = playerState.playing;
       setState(() {
-        _isPlaying = isPlaying;
+        _isAudioLoading = false;
       });
     });
   }
@@ -133,12 +133,12 @@ class _ResultPageState extends State<ResultPage> {
               onPressed: _copyToClipboard, icon: Icon(Icons.content_copy))
         ],
       ),
-      body: _isLoading
+      body: _isTextLoading
           ? Center(
               child: Column(
               children: [
                 Image.asset('assets/images/nowloading.gif'),
-                const Text('英文とその音声を生成しています…')
+                const Text('英文と日本語訳を生成しています…')
               ],
             ))
           : SafeArea(
@@ -163,7 +163,7 @@ class _ResultPageState extends State<ResultPage> {
                       ),
                       child: Text(
                         utf8.decode(_generatedText.runes.toList()),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16, // フォントサイズ
                           fontWeight: FontWeight.bold, // フォントウェイト
                           color: Colors.black, // 文字色
@@ -189,84 +189,66 @@ class _ResultPageState extends State<ResultPage> {
                       );
                     },
                   ),
-                  // コントロールボタン
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     IconButton(
-                  //       icon: Icon(Icons.play_arrow),
-                  //       onPressed:
-                  //           _isPlaying ? null : () => _audioPlayer.play(),
-                  //     ),
-                  //     IconButton(
-                  //       icon: Icon(Icons.stop),
-                  //       onPressed:
-                  //           _isPlaying ? () => _audioPlayer.stop() : null,
-                  //     ),
-                  //     IconButton(
-                  //       icon: Icon(Icons.pause),
-                  //       onPressed:
-                  //           _isPlaying ? () => _audioPlayer.pause() : null,
-                  //     ),
-                  //   ],
-                  // ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // 音量調整ボタン
-                      IconButton(
-                        icon: Icon(Icons.volume_up),
-                        onPressed: () {
-                          setState(() {
-                            _volume = _volume == 1.0 ? 0.0 : 1.0; // 音量をトグル
-                            _audioPlayer.setVolume(_volume);
-                          });
-                        },
-                      ),
-                      // 再生 & 停止トグルボタン
-                      IconButton(
-                        icon: Icon(_audioPlayer.playing
-                            ? Icons.pause
-                            : Icons.play_arrow),
-                        onPressed: () {
-                          if (_audioPlayer.playing) {
-                            _audioPlayer.pause();
-                          } else {
-                            _audioPlayer.play();
-                          }
-                        },
-                      ),
-                      // 速度変更ボタン
-                      PopupMenuButton<double>(
-                        initialValue: _speed,
-                        icon: Icon(Icons.speed),
-                        onSelected: (speed) {
-                          setState(() {
-                            _speed = speed;
-                            _audioPlayer.setSpeed(speed);
-                          });
-                        },
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 0.5,
-                            child: Text("0.5x"),
-                          ),
-                          PopupMenuItem(
-                            value: 1.0,
-                            child: Text("1.0x"),
-                          ),
-                          PopupMenuItem(
-                            value: 1.5,
-                            child: Text("1.5x"),
-                          ),
-                          PopupMenuItem(
-                            value: 2.0,
-                            child: Text("2.0x"),
-                          ),
-                        ],
-                      ),
-                    ],
-                  )
+                  _isAudioLoading
+                      ? const Text('音声取得中')
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // 音量調整ボタン
+                            IconButton(
+                              icon: Icon(Icons.volume_up),
+                              onPressed: () {
+                                setState(() {
+                                  _volume =
+                                      _volume == 1.0 ? 0.0 : 1.0; // 音量をトグル
+                                  _audioPlayer.setVolume(_volume);
+                                });
+                              },
+                            ),
+                            // 再生 & 停止トグルボタン
+                            IconButton(
+                              icon: Icon(_audioPlayer.playing
+                                  ? Icons.pause
+                                  : Icons.play_arrow),
+                              onPressed: () {
+                                if (_audioPlayer.playing) {
+                                  _audioPlayer.pause();
+                                } else {
+                                  _audioPlayer.play();
+                                }
+                              },
+                            ),
+                            // 速度変更ボタン
+                            PopupMenuButton<double>(
+                              initialValue: _speed,
+                              icon: Icon(Icons.speed),
+                              onSelected: (speed) {
+                                setState(() {
+                                  _speed = speed;
+                                  _audioPlayer.setSpeed(speed);
+                                });
+                              },
+                              itemBuilder: (context) => [
+                                PopupMenuItem(
+                                  value: 0.5,
+                                  child: Text("0.5x"),
+                                ),
+                                PopupMenuItem(
+                                  value: 1.0,
+                                  child: Text("1.0x"),
+                                ),
+                                PopupMenuItem(
+                                  value: 1.5,
+                                  child: Text("1.5x"),
+                                ),
+                                PopupMenuItem(
+                                  value: 2.0,
+                                  child: Text("2.0x"),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
                 ],
               ),
             ),
