@@ -45,6 +45,7 @@ dependencies:
   video_player: ^2.7.2
   just_audio: ^0.9.36
   url_launcher: ^6.1.11
+  flutter_native_splash: ^2.2.19
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +59,16 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   build_runner: ^2.3.3
   envied_generator: ^0.3.0+3
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  android: true 
+  ios: true
+  image_path: "assets/images/app_icon.jpg"
+
+flutter_native_splash:
+  image: "assets/images/sp_icon.png"
+  color: "FFFFFF"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
