@@ -49,9 +49,7 @@
 		<false/>
 		<key>UIStatusBarHidden</key>
 		<false/>
-    <key>NSAppTransportSecurity</key>
-    <dict>
-      <key>NSAllowsArbitraryLoads</key><true/>
-    </dict>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>このアプリは音声認識のためにマイクロフォンのアクセスを必要とします。</string>
 	</dict>
 </plist>
