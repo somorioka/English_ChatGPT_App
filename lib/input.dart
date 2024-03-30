@@ -115,162 +115,164 @@ Future<void> _launchURL() async {
     return Form(
       key: _formKey,
       child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const SizedBox(
-              height: 15,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: Row(
-                children: const [
-                  Text(
-                    'テーマを決める',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 73, 73, 73),
-                      fontWeight: FontWeight.bold
-                    ),
-                    ),
-                  Text(
-                    '*',
-                    style: TextStyle(
-                      color: Color.fromARGB(221, 255, 0, 123),
-                      fontWeight: FontWeight.bold
-                    ),
-                  )
-                ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const SizedBox(
+                height: 15,
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(15.0),
-              child: MyTextField(
-                controller: _themeController, // 修正: コントローラーを渡す
-                hintText: 'テーマを入力',
-                labelText: '英文のテーマ',
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: Row(
+                  children: const [
+                    Text(
+                      'テーマを決める',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 73, 73, 73),
+                        fontWeight: FontWeight.bold
+                      ),
+                      ),
+                    Text(
+                      '*',
+                      style: TextStyle(
+                        color: Color.fromARGB(221, 255, 0, 123),
+                        fontWeight: FontWeight.bold
+                      ),
+                    )
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 18),
-              child: Wrap(
-                spacing: 6.0, // 水平方向のスペース
-                runSpacing: 2.0, // 垂直方向のスペース
-                children: <String>[
-                  'スポーツと科学',
-                  '映画を作るには',
-                  'エジプト旅行譚',
-                  '未来の食文化',
-                  '宇宙人と仲良くなるコツ',
-                  'ジャンクフードの危険性',
-                  'ナマケモノの生涯',
-                  'AIと仕事',
-                  '人生を変える名言',
-                  '未知の言語の習得法',
-                  '睡眠と記憶',
-                ]
-                    .map((String theme) => ElevatedButton(
-                          onPressed: () {
-                            // ボタンが押された時の処理
-                            setState(() {
-                              _themeController.text = theme; // テキストフィールドにテーマを設定
-                            });
-                          },
-                          child: Text(theme),
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Color.fromARGB(255, 255, 255, 255),
-                            backgroundColor:
-                                Color.fromARGB(255, 161, 161, 161), // テキスト色
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20), // 角の丸さ
+              Padding(
+                padding: EdgeInsets.all(15.0),
+                child: MyTextField(
+                  controller: _themeController, // 修正: コントローラーを渡す
+                  hintText: 'テーマを入力',
+                  labelText: '英文のテーマ',
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 18),
+                child: Wrap(
+                  spacing: 6.0, // 水平方向のスペース
+                  runSpacing: 2.0, // 垂直方向のスペース
+                  children: <String>[
+                    'スポーツと科学',
+                    '映画を作るには',
+                    'エジプト旅行譚',
+                    '未来の食文化',
+                    '宇宙人と仲良くなるコツ',
+                    'ジャンクフードの危険性',
+                    'ナマケモノの生涯',
+                    'AIと仕事',
+                    '人生を変える名言',
+                    '未知の言語の習得法',
+                    '睡眠と記憶',
+                  ]
+                      .map((String theme) => ElevatedButton(
+                            onPressed: () {
+                              // ボタンが押された時の処理
+                              setState(() {
+                                _themeController.text = theme; // テキストフィールドにテーマを設定
+                              });
+                            },
+                            child: Text(theme),
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Color.fromARGB(255, 255, 255, 255),
+                              backgroundColor:
+                                  Color.fromARGB(255, 161, 161, 161), // テキスト色
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20), // 角の丸さ
+                              ),
+                              elevation: 0, // 影の効果をなくす
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8), // パディング
                             ),
-                            elevation: 0, // 影の効果をなくす
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8), // パディング
-                          ),
-                        ))
-                    .toList(),
-              ),
-            ),
-            const SizedBox(
-              height: 35,
-            ),
-            const Padding(
-              padding: EdgeInsets.only(left: 16.0),
-              child: Text(
-                'レベルを選ぶ',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 73, 73, 73),
-                  fontWeight: FontWeight.bold
+                          ))
+                      .toList(),
                 ),
-                ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 18.0),
-              child: Wrap(
-                spacing: 8.0, // 水平方向のスペース
-                runSpacing: 0.0, // 垂直方向のスペース
-                children: ['レベル1', 'レベル2', 'レベル3', 'レベル4', 'レベル5', 'レベル6'].map((String level) {
-                  return ChoiceChip(
-                    label: Text(level),
-                    selected: _selectedLevel == level,
-                    onSelected: (bool selected) {
-                      setState(() {
-                        _selectedLevel = level;
-                        _difficulty =
-                            _levelMap[level] ?? 'A1'; // マップを使用して_difficultyを更新
-                      });
-                    },
-                    selectedColor: Color.fromARGB(255, 11, 180, 115), // 選択された時の色
-                    backgroundColor: Colors.grey, // 選択されていない時の色
-                    labelStyle: TextStyle(color: Colors.white),
-                  );
-                }).toList(),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: TextButton(
-                child: const Text(
-                  'レベルに関して',
+              const SizedBox(
+                height: 35,
+              ),
+              const Padding(
+                padding: EdgeInsets.only(left: 16.0),
+                child: Text(
+                  'レベルを選ぶ',
                   style: TextStyle(
-                    color: Color.fromARGB(255, 11, 180, 115)
+                    color: Color.fromARGB(255, 73, 73, 73),
+                    fontWeight: FontWeight.bold
                   ),
                   ),
-                onPressed: () {
-                  _showLevelDescription(context);
-                },
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 18.0),
+                child: Wrap(
+                  spacing: 8.0, // 水平方向のスペース
+                  runSpacing: 0.0, // 垂直方向のスペース
+                  children: ['レベル1', 'レベル2', 'レベル3', 'レベル4', 'レベル5', 'レベル6'].map((String level) {
+                    return ChoiceChip(
+                      label: Text(level),
+                      selected: _selectedLevel == level,
+                      onSelected: (bool selected) {
+                        setState(() {
+                          _selectedLevel = level;
+                          _difficulty =
+                              _levelMap[level] ?? 'A1'; // マップを使用して_difficultyを更新
+                        });
+                      },
+                      selectedColor: Color.fromARGB(255, 11, 180, 115), // 選択された時の色
+                      backgroundColor: Colors.grey, // 選択されていない時の色
+                      labelStyle: TextStyle(color: Colors.white),
+                    );
+                  }).toList(),
                 ),
-            ),
-            // Padding(
-            //   padding: EdgeInsets.all(15.0),
-            //   child: MyTextField(
-            //     hintText: '単語・フレーズを入力',
-            //     labelText: '含めたい単語・フレーズ',
-            //     controller: _phraseController,
-            //   ),
-            // ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
-                child: ElevatedButton(
-                  onPressed: _themeController.text.isEmpty ? null : _generatePrompt,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 44, 44, 44),
-                    minimumSize:
-                        Size(double.infinity, 50), // 幅を最大にして、高さを50ピクセルに設定
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(15), // 角の丸さを20ピクセルの半径で設定
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: TextButton(
+                  child: const Text(
+                    'レベルに関して',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 11, 180, 115)
+                    ),
+                    ),
+                  onPressed: () {
+                    _showLevelDescription(context);
+                  },
+                  ),
+              ),
+              // Padding(
+              //   padding: EdgeInsets.all(15.0),
+              //   child: MyTextField(
+              //     hintText: '単語・フレーズを入力',
+              //     labelText: '含めたい単語・フレーズ',
+              //     controller: _phraseController,
+              //   ),
+              // ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: ElevatedButton(
+                    onPressed: _themeController.text.isEmpty ? null : _generatePrompt,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 44, 44, 44),
+                      minimumSize:
+                          Size(double.infinity, 50), // 幅を最大にして、高さを50ピクセルに設定
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(15), // 角の丸さを20ピクセルの半径で設定
+                      ),
+                    ),
+                    child: const Text(
+                      '送信',
+                      style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
-                  child: const Text(
-                    '送信',
-                    style: TextStyle(fontWeight: FontWeight.w900),
-                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
