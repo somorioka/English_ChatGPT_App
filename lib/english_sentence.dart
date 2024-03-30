@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
-
 import 'azure_api.dart';
 import 'chat_api.dart';
 
@@ -29,6 +28,7 @@ class _ResultPageState extends State<ResultPage> {
   bool _showTranslatedText = false; // 翻訳テキストの表示制御
   bool _isTextLoading = true;
   bool _isAudioLoading = true;
+  bool _isTranslateLoading = true;
   String? _ttsFilePath;
   late AudioPlayer _audioPlayer;
   double _volume = 1.0;
@@ -83,6 +83,7 @@ class _ResultPageState extends State<ResultPage> {
       final responseText = await ChatService().fetchResponse(prompt);
       setState(() {
         _translatedText = responseText;
+        _isTranslateLoading = false;
       });
     } catch (e) {
       setState(() {
@@ -201,7 +202,7 @@ class _ResultPageState extends State<ResultPage> {
                                   ),
                                 )
                               : TextButton(
-                                  onPressed: () {
+                                  onPressed: _isTranslateLoading ? null : () {
                                     // ボタンが押されたときのアクション
                                     setState(() {
                                       _showTranslatedText = true;
