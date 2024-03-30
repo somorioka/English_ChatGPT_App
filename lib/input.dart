@@ -54,57 +54,65 @@ class MyCustomFormState extends State<MyCustomForm> {
   }
 
   void _showLevelDescription(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    builder: (BuildContext context) {
-      return Container(
-        padding: EdgeInsets.all(16.0),
-        child: Wrap(
-          children: <Widget>[
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text('CEFR（セファール）は、ヨーロッパで言語学習者の能力を示す共通基準です。文科省が英語の評価指標として使用しているなど、幅広く活用されています。'),
-            ),
-            const ListTile(
-              title: Text('▪️ 英検との対応'),
-              subtitle: Text(
-                'CEFR A1: 英検3級レベル \n'
-                'CEFR A2: 英検準2級レベル \n'
-                'CEFR B1: 英検2級レベル \n'
-                'CEFR B2: 英検準1級レベル \n'
-                'CEFR C1: 英検1級レベル \n'
-                'CEFR C2: ネイティブスピーカーレベル \n',
-                style: TextStyle(height: 1.5), // 行間を調整
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          child: Wrap(
+            children: <Widget>[
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                    'CEFR（セファール）は、ヨーロッパで言語学習者の能力を示す共通基準です。文科省が英語の評価指標として使用しているなど、幅広く活用されています。'),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end, // ボタンを右端に配置
-                children: [
-                  TextButton(
-                    onPressed: _launchURL,
-                    child: Text('詳しくはコチラ'),
-                  ),
-                ],
+              const ListTile(
+                title: Text('▪️ 英検との対応'),
+                subtitle: Text(
+                  'CEFR C2: ネイティブスピーカーレベル\n'
+                  'CEFR C1: 英検1級レベル\n'
+                  'CEFR B2: 英検準1級レベル\n'
+                  'CEFR B1: 英検2級レベル\n'
+                  'CEFR A2: 英検準2級レベル\n'
+                  'CEFR A1: 英検3級レベル\n',
+                  style: TextStyle(height: 1.5), // 行間を調整
+                ),
               ),
-            )
-          ],
-        ),
-      );
-    },
-  );
-}
-
-Future<void> _launchURL() async {
-  const url = 'https://www.mext.go.jp/b_menu/shingi/chousa/koutou/091/gijiroku/__icsFiles/afieldfile/2018/07/27/1407616_003.pdf'; // 遷移させたい外部ページのURL
-  if (await canLaunch(url)) {
-    await launch(url);
-  } else {
-    throw 'Could not launch $url';
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end, // ボタンを右端に配置
+                  children: [
+                    TextButton(
+                      onPressed: _launchURL,
+                      child: Text('詳しくはコチラ'),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
-}
 
+  Future<void> _launchURL() async {
+    const url =
+        'https://www.mext.go.jp/b_menu/shingi/chousa/koutou/091/gijiroku/__icsFiles/afieldfile/2018/07/27/1407616_003.pdf'; // 遷移させたい外部ページのURL
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  @override
+  void dispose() {
+    // ウィジェットの破棄時にコントローラーを破棄
+    _themeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,26 +133,45 @@ Future<void> _launchURL() async {
                     Text(
                       'テーマを決める',
                       style: TextStyle(
-                        color: Color.fromARGB(255, 73, 73, 73),
-                        fontWeight: FontWeight.bold
-                      ),
-                      ),
+                          color: Color.fromARGB(255, 73, 73, 73),
+                          fontWeight: FontWeight.bold),
+                    ),
                     Text(
                       '*',
                       style: TextStyle(
-                        color: Color.fromARGB(221, 255, 0, 123),
-                        fontWeight: FontWeight.bold
-                      ),
+                          color: Color.fromARGB(221, 255, 0, 123),
+                          fontWeight: FontWeight.bold),
                     )
                   ],
                 ),
               ),
               Padding(
                 padding: EdgeInsets.all(15.0),
-                child: MyTextField(
-                  controller: _themeController, // 修正: コントローラーを渡す
-                  hintText: 'テーマを入力',
-                  labelText: '英文のテーマ',
+                child: TextFormField(
+                  controller: _themeController,
+                  decoration: InputDecoration(
+                    labelStyle:
+                        TextStyle(color: Color.fromARGB(255, 122, 122, 122)),
+                    labelText: 'テーマを入力',
+                    hintText: '英文のテーマ',
+                    border: OutlineInputBorder(
+                      // 通常時のボーダー設定
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(
+                          color: Colors.grey, width: 1.0), // 通常時のボーダーカラー
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      // フォーカス時のボーダー設定
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(
+                          color: Color.fromARGB(255, 62, 62, 62),
+                          width: 1.0), // フォーカス時のボーダーカラー
+                    ),
+                  ),
+                  onChanged: (value) {
+                    // テキストフィールドの値が変更されるたびに状態を更新
+                    setState(() {});
+                  },
                 ),
               ),
               Padding(
@@ -169,12 +196,14 @@ Future<void> _launchURL() async {
                             onPressed: () {
                               // ボタンが押された時の処理
                               setState(() {
-                                _themeController.text = theme; // テキストフィールドにテーマを設定
+                                _themeController.text =
+                                    theme; // テキストフィールドにテーマを設定
                               });
                             },
                             child: Text(theme),
                             style: ElevatedButton.styleFrom(
-                              foregroundColor: Color.fromARGB(255, 255, 255, 255),
+                              foregroundColor:
+                                  Color.fromARGB(255, 255, 255, 255),
                               backgroundColor:
                                   Color.fromARGB(255, 161, 161, 161), // テキスト色
                               shape: RoundedRectangleBorder(
@@ -198,55 +227,54 @@ Future<void> _launchURL() async {
                     Text(
                       '難易度(CEFRレベル) を選ぶ',
                       style: TextStyle(
-                        color: Color.fromARGB(255, 73, 73, 73),
-                        fontWeight: FontWeight.bold
-                      ),
-                      ),
-                    Text(
-                      '*',
-                      style: TextStyle(
-                        color: Color.fromARGB(221, 255, 0, 123),
-                        fontWeight: FontWeight.bold
-                      ),
-                    )
+                          color: Color.fromARGB(255, 73, 73, 73),
+                          fontWeight: FontWeight.bold),
+                    ),
+                    Text(' 　(C2が最難)')
                   ],
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(left: 18.0),
-                child: Wrap(
-                  spacing: 8.0, // 水平方向のスペース
-                  runSpacing: 0.0, // 垂直方向のスペース
-                  children: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((String level) {
-                    return ChoiceChip(
-                      label: Text(level),
-                      selected: _selectedLevel == level,
-                      onSelected: (bool selected) {
-                        setState(() {
-                          _selectedLevel = level;
-                          _difficulty = level;
-                        });
-                      },
-                      selectedColor: Color.fromARGB(255, 11, 180, 115), // 選択された時の色
-                      backgroundColor: Colors.grey, // 選択されていない時の色
-                      labelStyle: TextStyle(color: Colors.white),
-                    );
-                  }).toList(),
-                ),
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 18.0), // 左右のパディングを均一に調整
+                    child: Wrap(
+                      spacing: 8.0, // 水平方向のスペース
+                      runSpacing: 0.0, // 垂直方向のスペース
+                      children: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+                          .map((String level) {
+                        return ChoiceChip(
+                          label: Text(level),
+                          selected: _selectedLevel == level,
+                          onSelected: (bool selected) {
+                            setState(() {
+                              _selectedLevel = level;
+                              _difficulty = level;
+                            });
+                          },
+                          selectedColor:
+                              Color.fromARGB(255, 11, 180, 115), // 選択された時の色
+                          backgroundColor: Colors.grey, // 選択されていない時の色
+                          labelStyle: TextStyle(color: Colors.white),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
               ),
+
               Padding(
                 padding: const EdgeInsets.only(left: 16.0),
                 child: TextButton(
                   child: const Text(
                     'CEFRレベルって何ぞや',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 11, 180, 115)
-                    ),
-                    ),
+                    style: TextStyle(color: Color.fromARGB(255, 11, 180, 115)),
+                  ),
                   onPressed: () {
                     _showLevelDescription(context);
                   },
-                  ),
+                ),
               ),
               // Padding(
               //   padding: EdgeInsets.all(15.0),
@@ -260,7 +288,8 @@ Future<void> _launchURL() async {
                 padding: const EdgeInsets.all(16.0),
                 child: Center(
                   child: ElevatedButton(
-                    onPressed: _themeController.text.isEmpty ? null : _generatePrompt,
+                    onPressed:
+                        _themeController.text.isEmpty ? null : _generatePrompt,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 44, 44, 44),
                       minimumSize:
@@ -279,43 +308,6 @@ Future<void> _launchURL() async {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class MyTextField extends StatelessWidget {
-  final String labelText;
-  final String hintText;
-  final TextEditingController controller; // 修正: コントローラーを受け取る
-
-  MyTextField({
-    super.key,
-    required this.labelText,
-    required this.hintText,
-    required this.controller, // 修正: コントローラーを受け取る
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelStyle: TextStyle(color: Color.fromARGB(255, 122, 122, 122)),
-        labelText: labelText,
-        hintText: hintText,
-        border: OutlineInputBorder(
-          // 通常時のボーダー設定
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: Colors.grey, width: 1.0), // 通常時のボーダーカラー
-        ),
-        focusedBorder: OutlineInputBorder(
-          // フォーカス時のボーダー設定
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(
-              color: Color.fromARGB(255, 62, 62, 62),
-              width: 1.0), // フォーカス時のボーダーカラー
         ),
       ),
     );
