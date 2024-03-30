@@ -4,9 +4,16 @@ import 'dart:convert';
 
 class ChatService {
   final String? apiKey = dotenv.env['ChatGPTKEY'];
-  Future<String> fetchResponse(
-      String theme, String difficulty) async {
-    final prompt = "あなたはプロのライターです。以下の【テーマ】について記事を生成してください。【条件】【目的】【形式】の内容を踏まえて、英語で{英語本文}を作成してください。その後日本語で{日本語訳}を作成してください。\n#テーマ\n${theme}\n#条件\n- ${difficulty}\n- 読者の知的レベル:高校生\n- 語数:100語程度\n#目的\n- 英語学習\n- 教養を身につけるため\n#形式\n- 英文の始まりにはタイトルをつけず、いきなり本文から始めること\n- 英文と日本語訳の間は必ず1行あけること\n- 英文と英文の間では行をあけてはいけない";
+
+  String generateEnglishPrompt(String theme, String difficulty) {
+    return "あなたはプロのライターです。以下の【テーマ】について記事を生成してください。【条件】【目的】【形式】の内容を踏まえて、英語で{英語本文}を作成してください。\n#テーマ\n$theme\n#条件\n- $difficulty\n- 読者の知的レベル:高校生\n- 語数:50語程度\n#目的\n- 英語学習\n- 教養を身につけるため\n#形式\n- 英文の始まりにはタイトルをつけず、いきなり本文から始めること";
+  }
+
+  String generateJapanesePrompt(String englishText) {
+    return "あなたはプロの翻訳家です。#原文 にある英文を日本語に翻訳してください。\n#原文\n$englishText";
+  }
+
+  Future<String> fetchResponse(String prompt) async {
     final url = Uri.parse('https://api.openai.com/v1/chat/completions');
     final response = await http.post(
       url,

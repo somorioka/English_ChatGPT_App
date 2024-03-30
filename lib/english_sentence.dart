@@ -25,6 +25,8 @@ class ResultPage extends StatefulWidget {
 
 class _ResultPageState extends State<ResultPage> {
   String _generatedText = '';
+  String _translatedText = ''; // 翻訳されたテキストを保持
+  bool _showTranslatedText = false; // 翻訳テキストの表示制御
   bool _isTextLoading = true;
   bool _isAudioLoading = true;
   String? _ttsFilePath;
@@ -40,22 +42,13 @@ class _ResultPageState extends State<ResultPage> {
   }
 
   void _initializeScreen() async {
-    // _generatePromptを実行して、応答テキストを取得
-    await _generatePrompt();
-    // 応答テキストが取得できたら、そのテキストを用いてTTSデータを取得
+    // _fetchAndSetResponseTextを実行して、応答テキストを取得
+    await _fetchAndSetResponseText();
+    // 応答テキストが取得できたら、そのテキストを用いて日本語訳とTTSデータを取得
     if (_generatedText.isNotEmpty) {
-      // 最初の空行（英語セクションの終了）を探す
-      final endOfEnglishText = _generatedText.indexOf('\n\n');
-      String englishText;
-      if (endOfEnglishText != -1) {
-        // 空行が見つかった場合、その直前までが英文
-        englishText = _generatedText.substring(0, endOfEnglishText).trim();
-      } else {
-        // 空行が見つからない場合、文書の終わりまでが英文
-        englishText = _generatedText.trim();
-      }
+      _translateText(_generatedText);
       // 英語のテキストをAzure TTSで読み上げる
-      final ttsFilePath = await AzureTTS().fetchTTSData(englishText);
+      final ttsFilePath = await AzureTTS().fetchTTSData(_generatedText);
       if (ttsFilePath != null) {
         setState(() {
           _ttsFilePath = ttsFilePath;
@@ -65,13 +58,31 @@ class _ResultPageState extends State<ResultPage> {
     }
   }
 
-  Future<void> _generatePrompt() async {
+  Future<void> _fetchAndSetResponseText() async {
     try {
-      final responseText =
-          await ChatService().fetchResponse(widget.theme, widget.difficulty);
+      final prompt =
+          ChatService().generateEnglishPrompt(widget.theme, widget.difficulty);
+      final responseText = await ChatService().fetchResponse(prompt);
       setState(() {
         _generatedText = responseText;
         _isTextLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _generatedText = 'エラーが発生しました: $e';
+        _isTextLoading = false;
+      });
+    }
+  }
+
+  Future<void> _translateText(String textToTranslate) async {
+    try {
+      // ここでtextToTranslateを変数に、promptを返すメソッドを書く。
+      //そのpromptをfetchResponseにぶちこんでChatGPTに返答してもらう
+      final prompt = ChatService().generateJapanesePrompt(textToTranslate);
+      final responseText = await ChatService().fetchResponse(prompt);
+      setState(() {
+        _translatedText = responseText;
       });
     } catch (e) {
       setState(() {
@@ -100,9 +111,12 @@ class _ResultPageState extends State<ResultPage> {
   @override
   Widget build(BuildContext context) {
     void _copyToClipboard() {
-      Clipboard.setData(
-              ClipboardData(text: utf8.decode(_generatedText.runes.toList())))
-          .then((_) {
+      const separator = '\n\n';
+      // 英文(_generatedText)と日本語訳(_translatedText)を結合
+      final combinedText = utf8.decode(_generatedText.runes.toList()) +
+          separator +
+          utf8.decode(_translatedText.runes.toList());
+      Clipboard.setData(ClipboardData(text: combinedText)).then((_) {
         // コピー完了後の処理（オプション）
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('テキストをクリップボードにコピーしました')),
@@ -161,14 +175,41 @@ class _ResultPageState extends State<ResultPage> {
                           ),
                         ],
                       ),
-                      child: Text(
-                        utf8.decode(_generatedText.runes.toList()),
-                        style: const TextStyle(
-                          fontSize: 16, // フォントサイズ
-                          fontWeight: FontWeight.bold, // フォントウェイト
-                          color: Colors.black, // 文字色
-                          height: 1.5, // 行間
-                        ),
+                      child: Column(
+                        children: [
+                          Text(
+                            utf8.decode(_generatedText.runes.toList()),
+                            style: const TextStyle(
+                              fontSize: 16, // フォントサイズ
+                              fontWeight: FontWeight.bold, // フォントウェイト
+                              color: Colors.black87, // 文字色
+                              height: 1.5, // 行間
+                            ),
+                          ),
+                          // buildメソッド内のUIコードにボタンを追加
+                          const SizedBox(
+                            height: 30,
+                          ),
+                          _showTranslatedText
+                              ? Text(
+                                  utf8.decode(_translatedText.runes.toList()),
+                                  style: const TextStyle(
+                                    fontSize: 16, // フォントサイズ
+                                    fontWeight: FontWeight.bold, // フォントウェイト
+                                    color: Colors.black54, // 文字色
+                                    height: 1.5, // 行間
+                                  ),
+                                )
+                              : TextButton(
+                                  onPressed: () {
+                                    // ボタンが押されたときのアクション
+                                    setState(() {
+                                      _showTranslatedText = true;
+                                    });
+                                  },
+                                  child: const Text('日本語訳を見る'),
+                                ),
+                        ],
                       ),
                     )),
                   ),
@@ -190,19 +231,17 @@ class _ResultPageState extends State<ResultPage> {
                     },
                   ),
                   _isAudioLoading
-                      ? const Text('音声取得中')
+                      ? const Text('音声取得中...')
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // 音量調整ボタン
+                            // リスタートボタン
                             IconButton(
-                              icon: Icon(Icons.volume_up),
+                              icon: const Icon(Icons.restart_alt), // リスタートアイコンに変更
                               onPressed: () {
-                                setState(() {
-                                  _volume =
-                                      _volume == 1.0 ? 0.0 : 1.0; // 音量をトグル
-                                  _audioPlayer.setVolume(_volume);
-                                });
+                                // 最初の位置（0秒）にシークして再生を開始する
+                                _audioPlayer.seek(Duration.zero);
+                                _audioPlayer.play(); // オプショナル: 自動的に再生を開始したい場合
                               },
                             ),
                             // 再生 & 停止トグルボタン
@@ -234,16 +273,20 @@ class _ResultPageState extends State<ResultPage> {
                                   child: Text("0.5x"),
                                 ),
                                 PopupMenuItem(
+                                  value: 0.75,
+                                  child: Text("0.75x"),
+                                ),
+                                PopupMenuItem(
                                   value: 1.0,
                                   child: Text("1.0x"),
                                 ),
                                 PopupMenuItem(
-                                  value: 1.5,
-                                  child: Text("1.5x"),
+                                  value: 1.25,
+                                  child: Text("1.25x"),
                                 ),
                                 PopupMenuItem(
-                                  value: 2.0,
-                                  child: Text("2.0x"),
+                                  value: 1.5,
+                                  child: Text("1.5x"),
                                 ),
                               ],
                             ),
