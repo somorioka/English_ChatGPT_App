@@ -35,19 +35,11 @@ class MyCustomForm extends StatefulWidget {
 }
 
 class MyCustomFormState extends State<MyCustomForm> {
-  String _selectedLevel = 'レベル1'; // デフォルトのレベル
-  final Map<String, String> _levelMap = {
-    'レベル1': 'A1',
-    'レベル2': 'A2',
-    'レベル3': 'B2',
-    'レベル4': 'B1',
-    'レベル5': 'C1',
-    'レベル6': 'C2'
-  };
+  String _selectedLevel = 'A1'; // デフォルトのレベル
 
   final _formKey = GlobalKey<FormState>();
-  String _difficulty = 'レベル1';
-  String _phrase = '';
+  String _difficulty = 'A1';
+  // String _phrase = '';
   final _themeController = TextEditingController(); // テーマ用のコントローラー
   // final _phraseController = TextEditingController(); // フレーズ用のコントローラー、追加
 
@@ -69,15 +61,19 @@ class MyCustomFormState extends State<MyCustomForm> {
         padding: EdgeInsets.all(16.0),
         child: Wrap(
           children: <Widget>[
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text('CEFR（セファール）は、ヨーロッパで言語学習者の能力を示す共通基準です。文科省が英語の評価指標として使用しているなど、幅広く活用されています。'),
+            ),
             const ListTile(
-              title: Text('レベルの基準'),
+              title: Text('▪️ 英検との対応'),
               subtitle: Text(
-                'レベル1: 英検3級レベル (CEFR A1)\n'
-                'レベル2: 英検準2級レベル (CEFR A2)\n'
-                'レベル3: 英検2級レベル (CEFR B1)\n'
-                'レベル4: 英検準1級レベル (CEFR B2)\n'
-                'レベル5: 英検1級レベル (CEFR C1)\n'
-                'レベル6: ネイティブスピーカーレベル (CEFR C2)\n',
+                'CEFR A1: 英検3級レベル \n'
+                'CEFR A2: 英検準2級レベル \n'
+                'CEFR B1: 英検2級レベル \n'
+                'CEFR B2: 英検準1級レベル \n'
+                'CEFR C1: 英検1級レベル \n'
+                'CEFR C2: ネイティブスピーカーレベル \n',
                 style: TextStyle(height: 1.5), // 行間を調整
               ),
             ),
@@ -123,7 +119,7 @@ Future<void> _launchURL() async {
                 height: 15,
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 16.0),
+                padding: const EdgeInsets.only(left: 18.0),
                 child: Row(
                   children: const [
                     Text(
@@ -195,30 +191,40 @@ Future<void> _launchURL() async {
               const SizedBox(
                 height: 35,
               ),
-              const Padding(
-                padding: EdgeInsets.only(left: 16.0),
-                child: Text(
-                  'レベルを選ぶ',
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 73, 73, 73),
-                    fontWeight: FontWeight.bold
-                  ),
-                  ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0),
+                child: Row(
+                  children: const [
+                    Text(
+                      '難易度(CEFRレベル) を選ぶ',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 73, 73, 73),
+                        fontWeight: FontWeight.bold
+                      ),
+                      ),
+                    Text(
+                      '*',
+                      style: TextStyle(
+                        color: Color.fromARGB(221, 255, 0, 123),
+                        fontWeight: FontWeight.bold
+                      ),
+                    )
+                  ],
+                ),
               ),
               Padding(
                 padding: EdgeInsets.only(left: 18.0),
                 child: Wrap(
                   spacing: 8.0, // 水平方向のスペース
                   runSpacing: 0.0, // 垂直方向のスペース
-                  children: ['レベル1', 'レベル2', 'レベル3', 'レベル4', 'レベル5', 'レベル6'].map((String level) {
+                  children: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((String level) {
                     return ChoiceChip(
                       label: Text(level),
                       selected: _selectedLevel == level,
                       onSelected: (bool selected) {
                         setState(() {
                           _selectedLevel = level;
-                          _difficulty =
-                              _levelMap[level] ?? 'A1'; // マップを使用して_difficultyを更新
+                          _difficulty = level;
                         });
                       },
                       selectedColor: Color.fromARGB(255, 11, 180, 115), // 選択された時の色
@@ -232,7 +238,7 @@ Future<void> _launchURL() async {
                 padding: const EdgeInsets.only(left: 16.0),
                 child: TextButton(
                   child: const Text(
-                    'レベルに関して',
+                    'CEFRレベルって何ぞや',
                     style: TextStyle(
                       color: Color.fromARGB(255, 11, 180, 115)
                     ),
