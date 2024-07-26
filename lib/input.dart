@@ -1,3 +1,4 @@
+import 'package:english_sentence_generation/themes_data.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'english_sentence.dart';
@@ -8,12 +9,25 @@ class TopPage extends StatefulWidget {
 }
 
 class _TopPageState extends State<TopPage> {
+  List<String> _randomThemes = []; // ランダムテーマを格納するリスト
+
+  @override
+  initState() {
+    super.initState();
+    _randomThemes = getRandomThemes(themes, 10); // 例えば5つのテーマをランダムに選択
+  }
+
+  List<String> getRandomThemes(List<String> allThemes, int count) {
+    allThemes.shuffle(); // リストをシャッフル
+    return allThemes.take(count).toList(); // 最初のn個のテーマを取得
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        toolbarHeight: 25.0,
+        toolbarHeight: 50.0,
         title: const Text(
           '英文を生成する',
           style: TextStyle(
@@ -21,13 +35,29 @@ class _TopPageState extends State<TopPage> {
         ),
         backgroundColor: Colors.white,
         elevation: 0,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh),
+            color: Colors.black87,
+            onPressed: () {
+              setState(() {
+                // 新しいテーマリストを生成し、ウィジェットを再描画する
+                _randomThemes = getRandomThemes(themes, 10);
+              });
+            },
+          ),
+        ],
       ),
-      body: MyCustomForm(),
+      body: MyCustomForm(randomThemes: _randomThemes),
     );
   }
 }
 
 class MyCustomForm extends StatefulWidget {
+  final List<String> randomThemes;
+
+  MyCustomForm({Key? key, required this.randomThemes}) : super(key: key);
+
   @override
   MyCustomFormState createState() {
     return MyCustomFormState();
@@ -179,19 +209,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                 child: Wrap(
                   spacing: 6.0, // 水平方向のスペース
                   runSpacing: 2.0, // 垂直方向のスペース
-                  children: <String>[
-                    'スポーツと科学',
-                    '映画を作るには',
-                    'エジプト旅行譚',
-                    '未来の食文化',
-                    '宇宙人と仲良くなるコツ',
-                    'ジャンクフードの危険性',
-                    'ナマケモノの生涯',
-                    'AIと仕事',
-                    '人生を変える名言',
-                    '未知の言語の習得法',
-                    '睡眠と記憶',
-                  ]
+                  children: widget.randomThemes
                       .map((String theme) => ElevatedButton(
                             onPressed: () {
                               // ボタンが押された時の処理
@@ -200,7 +218,10 @@ class MyCustomFormState extends State<MyCustomForm> {
                                     theme; // テキストフィールドにテーマを設定
                               });
                             },
-                            child: Text(theme),
+                            child: Text(
+                              theme,
+                              style: TextStyle(fontSize: 12.5),
+                            ),
                             style: ElevatedButton.styleFrom(
                               foregroundColor:
                                   Color.fromARGB(255, 255, 255, 255),
